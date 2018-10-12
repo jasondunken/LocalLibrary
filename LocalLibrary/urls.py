@@ -29,6 +29,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # this redirects to the catalog page views
     path('catalog/', include('catalog.urls')),
+    # this redirects to the accounts page views
+    path('accounts/', include('django.contrib.auth.urls')),
     # this is a catch all else that redirects to the catalog landing view
     path('', RedirectView.as_view(url='/catalog/')),
 ]
