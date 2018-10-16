@@ -1,9 +1,19 @@
 from django.shortcuts import render
 from django.views import generic
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
-from catalog.models import Author, Book, BookInstance, Genre
-from django.contrib.auth.models import User
+from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+
+import datetime
+
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect
+from django.urls import reverse, reverse_lazy
+
+from catalog.models import Author, Book, BookInstance
+from catalog.forms import RenewBookForm
+
 
 
 
@@ -86,6 +96,75 @@ class LoanedBooksAllView(PermissionRequiredMixin, generic.ListView):
 
     def get_queryset(self):
         return BookInstance.objects.filter(status__exact='o').order_by('due_back')
+
+
+@permission_required('catalog.can_mark_returned')
+def renew_book_librarian(request, pk):
+    book_instance = get_object_or_404(BookInstance, pk=pk)
+
+    # If this is a POST request, it is not the first request, so okay to process request
+    if request.method == 'POST':
+        book_renewal_form = RenewBookForm(request.POST)
+
+        # check that the form is valid
+        if book_renewal_form.is_valid():
+            book_instance.due_back = book_renewal_form.cleaned_data['renewal_date']
+            book_instance.save()
+
+            return HttpResponseRedirect(reverse('all-borrowed'))
+
+    else:
+        proposed_renewal_date = datetime.date.today() + datetime.timedelta(weeks=3)
+        book_renewal_form = RenewBookForm(initial={'renewal_date': proposed_renewal_date})
+
+    context = {
+        'form': book_renewal_form,
+        'book_instance': book_instance
+    }
+
+    return render(request, 'catalog/renew_book_librarian.html', context)
+
+
+class AuthorCreate(CreateView):
+    model = Author
+    # the fields attrib defines which fields to show on form
+    fields = '__all__'  # this shows all the fields for a given model
+
+    # you can set initial values for fields using a dict syntax
+    initial = {'date_of_death': '05/01/2018'}
+
+    # in the CreateView view, upon success, a redirect to the newly created/edited model instance is called
+
+
+class AuthorUpdate(UpdateView):
+    model = Author
+    # here the fields to be displayed are being explicitly defined
+    fields = ['first_name', 'last_name', 'date_of_birth', 'date_of_death']
+
+    # in the UpdateView view, upon success, a redirect to the newly created/edited model instance is called
+
+
+class AuthorDelete(DeleteView):
+    model = Author
+    # in the above views, upon success, a redirect to the previous page is called
+    # here a success redirect url is explicitly defined
+    success_url = reverse_lazy('authors')
+
+
+class BookCreate(CreateView):
+    model = Book
+    fields = '__all__'
+
+
+class BookUpdate(UpdateView):
+    model = Book
+    fields = '__all__'
+
+
+class BookDelete(DeleteView):
+    model = Book
+
+    success_url = reverse_lazy('books')
 
 
 # class CreateNewUserView(generic.FormView):

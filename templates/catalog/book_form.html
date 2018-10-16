@@ -1,0 +1,12 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+    <form action="" method="POST">
+    <h1>Add/Update a book entry</h1>
+        {% csrf_token %}
+        <table>
+            {{ form.as_table }}
+        </table>
+    <input type="submit" value="Submit">
+    </form>
+{% endblock %}

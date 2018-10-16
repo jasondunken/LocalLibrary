@@ -6,7 +6,7 @@
     {% if bookinstance_list %}
         {% for bookinst in bookinstance_list %}
         <ul>
-            <li class='{% if bookinst.is_overdue %}text-danger{% endif %}'>{{ bookinst.book.title }} ({{ bookinst.due_back }}) - {{ bookinst.borrower }}</li>
+            <li class='{% if bookinst.is_overdue %}text-danger{% endif %}'>{{ bookinst.book.title }} ({{ bookinst.due_back }}) - {{ bookinst.borrower }} <a href="{% url 'renew-book-librarian' bookinst.id %}">Renew</a></li>
         </ul>
         {% endfor %}
     {% else %}
