@@ -125,7 +125,7 @@ def renew_book_librarian(request, pk):
     return render(request, 'catalog/renew_book_librarian.html', context)
 
 
-class AuthorCreate(CreateView):
+class AuthorCreate(PermissionRequiredMixin, CreateView):
     model = Author
     # the fields attrib defines which fields to show on form
     fields = '__all__'  # this shows all the fields for a given model
@@ -133,6 +133,7 @@ class AuthorCreate(CreateView):
     # you can set initial values for fields using a dict syntax
     initial = {'date_of_death': '05/01/2018'}
 
+    permission_required = 'catalog.can_create_author'
     # in the CreateView view, upon success, a redirect to the newly created/edited model instance is called
 
 

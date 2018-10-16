@@ -98,7 +98,7 @@ class RenewBookInstancesViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         date_3_weeks_in_future = datetime.date.today() + datetime.timedelta(weeks=3)
-        self.assertEquals(response.context['form'].initial['renewal_date'], date_3_weeks_in_future)
+        self.assertEqual(response.context['form'].initial['renewal_date'], date_3_weeks_in_future)
 
     def test_redirects_to_all_borrowed_book_list_on_success(self):
         login = self.client.login(username='test_user2', password='password')
@@ -112,7 +112,7 @@ class RenewBookInstancesViewTest(TestCase):
         invalid_date_in_past = datetime.date.today() - datetime.timedelta(weeks=1)
         response = self.client.post(reverse('renew-book-librarian', kwargs={'pk': self.test_bookinstance1.pk}),
                                    {'renewal_date': invalid_date_in_past})
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertFormError(response, 'form', 'renewal_date', 'Invalid date - renewal in past')
 
     def test_form_invalid_renewal_date_in_future(self):
@@ -120,7 +120,7 @@ class RenewBookInstancesViewTest(TestCase):
         invalid_date_in_future = datetime.date.today() + datetime.timedelta(weeks=5)
         response = self.client.post(reverse('renew-book-librarian', kwargs={'pk': self.test_bookinstance1.pk}),
                                    {'renewal_date': invalid_date_in_future})
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertFormError(response, 'form', 'renewal_date', 'Invalid date - renewal more than 4 weeks ahead')
 
 

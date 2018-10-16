@@ -140,15 +140,13 @@ class Author(models.Model):
 
     class Meta:
         ordering = ['last_name', 'first_name']
+        permissions = (('can_create_author', 'can_create_author'),)
 
     def get_absolute_url(self):
         return reverse('author-detail', args=[str(self.id)])
 
     def __str__(self):
         return f'{self.last_name}, {self.first_name}'
-
-    class Meta:
-        ordering = ['last_name']
 
 
 class Language(models.Model):
