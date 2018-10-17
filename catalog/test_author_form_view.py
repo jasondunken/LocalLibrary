@@ -1,4 +1,4 @@
-"""this is a test file for the author form view
+"""this is a test file for the author model
 
     it will perform tests for both the author model, the author from, and the author form view
 
@@ -95,6 +95,10 @@ class AuthorFormViewTest(TestCase):
         })
         # this claims to not redirect, I guess it's a result of using the generic form views create/update/delete?
         self.assertEqual(response.status_code, 200)
+        # this does't work
+        # it's the solution to the challenge from the tutorial repository
+        # manually check redirect because we don't know what author was created
+        # self.assertTrue(response.url.startswith('/catalog/author/'))
 
     def test_author_create_form_date_of_birth_can_be_blank(self):
         self.login_test_user()
@@ -106,12 +110,28 @@ class AuthorFormViewTest(TestCase):
         response = self.client.post(reverse('author-create'), kwargs={'date_of_death': ""})
         self.assertEqual(response.status_code, 200)
 
+    def test_author_create_form_labels_are_correct(self):
+        self.login_test_user()
+        response = self.client.get(reverse('author-create'))
+        form = response.context['form']
+        self.assertTrue(form['first_name'].label == "First name")
+        self.assertTrue(form['last_name'].label == "Last name")
+        self.assertTrue(form['nick_name'].label == "Nick name")
+        self.assertTrue(form['date_of_birth'].label == "Date of birth")
+        self.assertTrue(form['date_of_death'].label == "Date of death")
+
     def test_author_detail_returns_correct_data(self):
         self.login_test_user()
         response = self.client.get(reverse('author-detail', kwargs={'pk': self.test_author.pk}))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['object'].last_name, self.test_author.last_name)
         self.assertEqual(response.context['object'].first_name, self.test_author.first_name)
+
+    def test_author_create_form_uses_correct_template(self):
+        self.login_test_user()
+        response = self.client.get(reverse('author-create'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'catalog/author_form.html')
 
     def test_author_sort_by_last_name(self):
         pass
